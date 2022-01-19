@@ -4,7 +4,10 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.commands.SwerveTeleop;
+import frc.robot.subsystems.Swerve;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -14,8 +17,19 @@ import edu.wpi.first.wpilibj2.command.Command;
  */
 public class RobotContainer {
 	
+	private final Swerve swerveDrive;
+	private final Joystick driveController;
+	private final SwerveTeleop swerveTeleop;
+	
 	public RobotContainer () {
+		driveController = new Joystick(0);
 		
+		swerveDrive = new Swerve();
+		swerveTeleop = new SwerveTeleop(
+			swerveDrive, // TODO: Get axis IDs for joystick
+			() -> driveController.getRawAxis(0),	// strafeX
+			() -> driveController.getRawAxis(0),	// strafeY
+			() -> driveController.getRawAxis(0));	// steering
 	}
 	
 	/**
