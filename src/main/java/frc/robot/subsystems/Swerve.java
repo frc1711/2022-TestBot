@@ -8,8 +8,7 @@ import frc.team1711.swerve.util.Angles;
 
 public class Swerve extends AutoSwerveDrive {
 	
-	// TODO: Get wheelbase ratio
-	private static final double widthToHeightWheelbaseRatio = 1;
+	private static final double trackToWheelbaseRatio = 21/18.;
 	
 	private static final int
 		frontLeftSteerID = 6,
@@ -41,7 +40,7 @@ public class Swerve extends AutoSwerveDrive {
 			new SwerveModule(frontRightSteerID, frontRightDriveID, frontRightSteerEncoderID), // Front right module
 			new SwerveModule(rearLeftSteerID, rearLeftDriveID, rearLeftSteerEncoderID), // Rear left module
 			new SwerveModule(rearRightSteerID, rearRightDriveID, rearRightSteerEncoderID), // Rear right module
-			widthToHeightWheelbaseRatio);
+			trackToWheelbaseRatio);
 		setDriveRelativeSpeed(driveRelativeSpeed);
 		setSteerRelativeSpeed(steerRelativeSpeed);
 		
