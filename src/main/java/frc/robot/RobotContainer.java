@@ -20,10 +20,10 @@ public class RobotContainer {
 		
 		swerveDrive = new Swerve();
 		swerveTeleop = new SwerveTeleop(
-			swerveDrive, // TODO: Get axis IDs for joystick
+			swerveDrive,
 			() -> driveController.getRawAxis(0),	// strafeX
-			() -> driveController.getRawAxis(0),	// strafeY
-			() -> driveController.getRawAxis(0));	// steering
+			() -> -driveController.getRawAxis(1),	// strafeY
+			() -> driveController.getRawAxis(4));	// steering
 		
 		swerveDrive.setDefaultCommand(swerveTeleop);
 	}
