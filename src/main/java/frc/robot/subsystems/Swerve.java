@@ -12,15 +12,15 @@ public class Swerve extends AutoSwerveDrive {
     private static final double widthToHeightWheelbaseRatio = 1;
 
     private static final int
-        frontLeftSteerID = 0,
-        frontRightSteerID = 0,
-        rearLeftSteerID = 0,
-        rearRightSteerID = 0,
+        frontLeftSteerID = 6,
+        frontRightSteerID = 4,
+        rearLeftSteerID = 8,
+        rearRightSteerID = 2,
 
-        frontLeftDriveID = 0,
-        frontRightDriveID = 0,
-        rearLeftDriveID = 0,
-        rearRightDriveID = 0,
+        frontLeftDriveID = 5,
+        frontRightDriveID = 3,
+        rearLeftDriveID = 7,
+        rearRightDriveID = 1,
 
         frontLeftSteerEncoderID = 0,
         frontRightSteerEncoderID = 0,
