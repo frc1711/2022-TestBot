@@ -21,7 +21,6 @@ public class Swerve extends AutoSwerveDrive {
 		rearLeftDriveID = 7,
 		rearRightDriveID = 1,
 		
-		// TODO: Get CANCoder IDs
 		frontLeftSteerEncoderID = 9,
 		frontRightSteerEncoderID = 10,
 		rearLeftSteerEncoderID = 11,

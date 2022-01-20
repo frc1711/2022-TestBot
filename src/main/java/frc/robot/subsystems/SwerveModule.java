@@ -62,8 +62,10 @@ public class SwerveModule extends AutoSwerveWheel {
 	
 	// Absolute encoder direction offset
 	private double getDirectionAbsoluteOffset () {
-		// Retrieve direction from absolute encoder's arbitrary 0 value
-		return (double) steerEncoder.configGetCustomParam(0, directionOffsetPrecision) / directionOffsetPrecision;
+		try {
+			// Retrieve direction from absolute encoder's arbitrary 0 value
+			return (double) steerEncoder.configGetCustomParam(0, directionOffsetPrecision) / directionOffsetPrecision;
+		} catch (NullPointerException e) { return 0; }
 	}
 	
 	private int createNewDirectionAbsoluteOffset () {
