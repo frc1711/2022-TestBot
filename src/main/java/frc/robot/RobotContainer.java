@@ -5,7 +5,10 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+
+import frc.robot.commands.SetSwerveModulePositions;
 import frc.robot.commands.SwerveTeleop;
 import frc.robot.subsystems.Swerve;
 
@@ -21,11 +24,15 @@ public class RobotContainer {
 		swerveDrive = new Swerve();
 		swerveTeleop = new SwerveTeleop(
 			swerveDrive,
-			() -> driveController.getRawAxis(0),	// strafeX
-			() -> -driveController.getRawAxis(1),	// strafeY
+			() -> -driveController.getRawAxis(0),	// strafeX
+			() -> driveController.getRawAxis(1),	// strafeY
 			() -> driveController.getRawAxis(4));	// steering
 		
 		swerveDrive.setDefaultCommand(swerveTeleop);
+		
+		// SmartDashboard
+		SmartDashboard.putData("Swerve", swerveDrive);
+		SmartDashboard.putData(new SetSwerveModulePositions(swerveDrive));
 	}
 	
 	public Command getAutonomousCommand () {

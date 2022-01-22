@@ -7,6 +7,7 @@ package frc.robot.commands;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+
 import frc.robot.subsystems.Swerve;
 
 public class SwerveTeleop extends CommandBase {
@@ -29,6 +30,7 @@ public class SwerveTeleop extends CommandBase {
 		this.strafeY = strafeY;
 		this.steering = steering;
 		
+		// SmartDashboard commands
 		addRequirements(swerveDrive);
 	}
 	
@@ -41,6 +43,9 @@ public class SwerveTeleop extends CommandBase {
 	public void execute () {
 		// Performs field-relative driving for the swerve system with input deadbands turned on
 		swerveDrive.fieldRelativeInputDrive(strafeX.getAsDouble(), strafeY.getAsDouble(), steering.getAsDouble(), true);
+		
+		// Update SmartDashboard
+		swerveDrive.displayOrientation();
 	}
 	
 	@Override

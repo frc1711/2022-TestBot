@@ -20,18 +20,18 @@ public class SwerveModule extends AutoSwerveWheel {
 	private static final int directionOffsetPrecision = 1000;
 		
 	private static final double
-		steerPIDkp = 0.1,
+		steerPIDkp = 1.2,
 		steerPIDki = 0,
 		steerPIDkd = 0;
 	
 	private final CANCoder steerEncoder;
 	private final PIDController steerPID;
-	private final double directionAbsoluteOffset;
+	private double directionAbsoluteOffset;
 	private final CANSparkMax driveController, steerController;
 	
-	public SwerveModule (int steerControllerID, int driveControllerID, int steerEncoderID) {
-		driveController = new CANSparkMax(steerControllerID, CANSparkMaxLowLevel.MotorType.kBrushless);
-		steerController = new CANSparkMax(driveControllerID, CANSparkMaxLowLevel.MotorType.kBrushless);
+	public SwerveModule (String name, int steerControllerID, int driveControllerID, int steerEncoderID) {
+		driveController = new CANSparkMax(driveControllerID, CANSparkMaxLowLevel.MotorType.kBrushless);
+		steerController = new CANSparkMax(steerControllerID, CANSparkMaxLowLevel.MotorType.kBrushless);
 		
 		driveController.setIdleMode(IdleMode.kBrake);
 		steerController.setIdleMode(IdleMode.kBrake);
@@ -64,8 +64,14 @@ public class SwerveModule extends AutoSwerveWheel {
 	private double getDirectionAbsoluteOffset () {
 		try {
 			// Retrieve direction from absolute encoder's arbitrary 0 value
-			return (double) steerEncoder.configGetCustomParam(0, directionOffsetPrecision) / directionOffsetPrecision;
-		} catch (NullPointerException e) { return 0; }
+			double v = (double) steerEncoder.configGetCustomParam(0, 100) / directionOffsetPrecision;
+			System.out.println(v);
+			return v;
+		} catch (NullPointerException e) {
+			// TODO: Fix bug - keep getting null pointer here
+			System.out.println("Could not retrieve encoder absolute offset");
+			return 0;
+		}
 	}
 	
 	private int createNewDirectionAbsoluteOffset () {
@@ -88,10 +94,12 @@ public class SwerveModule extends AutoSwerveWheel {
 		config.sensorDirection = true;
 		
 		// Sets the direction absolute offset
-		config.customParam0 = createNewDirectionAbsoluteOffset();
+		int newOffset = createNewDirectionAbsoluteOffset();
+		directionAbsoluteOffset = newOffset/(double)directionOffsetPrecision;
+		config.customParam0 = newOffset;
 		
 		// Flashes the configuration
-		steerEncoder.configAllSettings(config, 100);
+		steerEncoder.configAllSettings(config, 1000);
 	}
 	
 	// Controlling steering
@@ -106,7 +114,7 @@ public class SwerveModule extends AutoSwerveWheel {
 		double steerSpeed = steerPID.calculate(0, directionChange / 360);
 		
 		// Sets steering controller
-		steerController.set(steerSpeed);
+		steerController.set(-steerSpeed);
 	}
 	
 	@Override
