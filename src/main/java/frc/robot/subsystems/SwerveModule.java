@@ -13,17 +13,19 @@ import edu.wpi.first.math.controller.PIDController;
 import frc.team1711.swerve.subsystems.AutoSwerveWheel;
 import frc.team1711.swerve.util.Angles;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.PrintWriter;
+
 public class SwerveModule extends AutoSwerveWheel {
-	
-	// The reciprocal of this value is the unit in revolutions
-	// with which the direction absolute offset is stored
-	private static final int directionOffsetPrecision = 1000;
 		
 	private static final double
 		steerPIDkp = 1.2,
 		steerPIDki = 0,
 		steerPIDkd = 0;
 	
+	private final int steerEncoderID;
 	private final CANCoder steerEncoder;
 	private final PIDController steerPID;
 	private double directionAbsoluteOffset;
@@ -36,8 +38,10 @@ public class SwerveModule extends AutoSwerveWheel {
 		driveController.setIdleMode(IdleMode.kBrake);
 		steerController.setIdleMode(IdleMode.kBrake);
 		
-		directionAbsoluteOffset = getDirectionAbsoluteOffset();
 		steerEncoder = new CANCoder(steerEncoderID);
+		this.steerEncoderID = steerEncoderID;
+		
+		directionAbsoluteOffset = getDirectionAbsoluteOffset();
 		
 		steerPID = new PIDController(steerPIDkp, steerPIDki, steerPIDkd);
 	}
@@ -63,24 +67,43 @@ public class SwerveModule extends AutoSwerveWheel {
 	// Absolute encoder direction offset
 	private double getDirectionAbsoluteOffset () {
 		try {
-			// Retrieve direction from absolute encoder's arbitrary 0 value
-			double v = (double) steerEncoder.configGetCustomParam(0, 100) / directionOffsetPrecision;
-			System.out.println(v);
-			return v;
-		} catch (NullPointerException e) {
-			// TODO: Fix bug - keep getting null pointer here
-			System.out.println("Could not retrieve encoder absolute offset");
-			return 0;
-		}
+			// Reads absolute position offset from file
+			FileReader fileReader = new FileReader(getAbsolutePositionOffsetFileName());
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+			String newOffsetStr = bufferedReader.readLine();
+			bufferedReader.close();
+			
+			// Attempts to convert offset from String to double
+			double newDouble = Double.valueOf(newOffsetStr);
+			directionAbsoluteOffset = newDouble;
+			return newDouble;
+		} catch (Exception e) {
+			System.out.println(e.getClass().getSimpleName() + ": Could not retrieve encoder absolute offset for ID " + steerEncoderID);
+		} return 0;
 	}
 	
-	private int createNewDirectionAbsoluteOffset () {
-		// Creates a new value for the encoder's direction absolute offset
-		// based on the assumption that the wheel is currently facing directly forward
-		return (int)Math.round(steerEncoder.getAbsolutePosition() * directionOffsetPrecision);
+	// Creates a new value for the encoder's direction absolute offset
+	// based on the assumption that the wheel is currently facing directly forward
+	private double createNewDirectionAbsoluteOffset () {
+		// Makes a file writer so the new value can be written to a file on the RoboRIO
+		final double newOffset = steerEncoder.getAbsolutePosition();
+		try {
+			PrintWriter fileWriter = new PrintWriter(getAbsolutePositionOffsetFileName());
+			fileWriter.print(newOffset);
+			fileWriter.close();
+		} catch (FileNotFoundException e) {
+			System.out.println("Could not write absolute position offset to RoboRIO for encoder ID " + steerEncoder.getDeviceID());
+		} return newOffset;
+	}
+	
+	private String getAbsolutePositionOffsetFileName () {
+		return "/home/lvuser/CANCoderID(" + steerEncoder.getDeviceID() + ")AbsolutePositionOffset.txt";
 	}
 	
 	public void configDirectionEncoder () {
+		// Sets the direction absolute offset (not stored on encoder but related to encoder)
+		directionAbsoluteOffset = createNewDirectionAbsoluteOffset();
+		
 		// Create the cancoder configuration
 		CANCoderConfiguration config = new CANCoderConfiguration();
 		
@@ -92,11 +115,6 @@ public class SwerveModule extends AutoSwerveWheel {
 		
 		// Clockwise is positive displacement
 		config.sensorDirection = true;
-		
-		// Sets the direction absolute offset
-		int newOffset = createNewDirectionAbsoluteOffset();
-		directionAbsoluteOffset = newOffset/(double)directionOffsetPrecision;
-		config.customParam0 = newOffset;
 		
 		// Flashes the configuration
 		steerEncoder.configAllSettings(config, 1000);
