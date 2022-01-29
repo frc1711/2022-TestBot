@@ -21,7 +21,7 @@ public class RobotContainer {
 	public RobotContainer () {
 		driveController = new Joystick(0);
 		
-		swerveDrive = new Swerve();
+		swerveDrive = Swerve.getInstance();
 		swerveTeleop = new SwerveTeleop(
 			swerveDrive,
 			() -> driveController.getRawAxis(0),	// strafeX
