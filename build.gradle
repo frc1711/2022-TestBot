@@ -75,7 +75,7 @@ dependencies {
 
 	testImplementation 'junit:junit:4.12'
 
-	implementation name: 'swervelib-v2.2022.1.1'
+	implementation name: 'swervelib-v3.2022.1.1'
 }
 
 // Simulation configuration (e.g. environment variables).
